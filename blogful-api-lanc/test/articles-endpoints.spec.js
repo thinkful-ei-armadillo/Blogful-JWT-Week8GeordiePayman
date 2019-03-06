@@ -131,7 +131,9 @@ describe('Articles Endpoints', function() {
 
   describe(`GET /api/articles/:article_id`, () => {
     context(`Given no articles`, () => {
-      beforeEach(() => db.into('blogful_users').insert(testUsers));
+      beforeEach(() => {
+        return helpers.seedUsers(db, testUsers);
+      });
 
       it(`responds with 404`, () => {
         const articleId = 123456;
@@ -188,7 +190,9 @@ describe('Articles Endpoints', function() {
 
   describe(`GET /api/articles/:article_id/comments`, () => {
     context(`Given no articles`, () => {
-      beforeEach(() => db.into('blogful_users').insert(testUsers));
+      beforeEach(() => {
+        return helpers.seedUsers(db, testUsers);
+      });
 
       it(`responds with 404`, () => {
         const articleId = 123456;

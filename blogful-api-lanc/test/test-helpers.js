@@ -1,3 +1,5 @@
+const bcrypt = require('bcryptjs');
+
 function makeUsersArray() {
   return [
     {
@@ -215,10 +217,16 @@ function cleanTables(db) {
   );
 }
 
+function seedUsers(db, users) {
+  const preppedUsers = users.map(user => ({
+    ...user,
+    password: bcrypt.hashSync(user.password, 1)
+  }));
+  return db.into('blogful_users').insert(preppedUsers);
+}
+
 function seedArticlesTables(db, users, articles, comments = []) {
-  return db
-    .into('blogful_users')
-    .insert(users)
+  return seedUsers(db, users)
     .then(() => db.into('blogful_articles').insert(articles))
     .then(
       () => comments.length && db.into('blogful_comments').insert(comments)
@@ -226,10 +234,9 @@ function seedArticlesTables(db, users, articles, comments = []) {
 }
 
 function seedMaliciousArticle(db, user, article) {
-  return db
-    .into('blogful_users')
-    .insert([user])
-    .then(() => db.into('blogful_articles').insert([article]));
+  return seedUsers(db, [user]).then(() =>
+    db.into('blogful_articles').insert([article])
+  );
 }
 
 function makeAuthHeader(user) {
@@ -251,5 +258,6 @@ module.exports = {
   cleanTables,
   seedArticlesTables,
   seedMaliciousArticle,
-  makeAuthHeader
+  makeAuthHeader,
+  seedUsers
 };
